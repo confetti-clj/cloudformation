@@ -7,6 +7,10 @@
             [camel-snake-kebab.extras :refer [transform-keys]]
             [amazonica.aws.cloudformation :as cformation]))
 
+(defn validate-creds! [cred]
+  (assert (and (string? (:access-key cred))
+               (string? (:secret-key cred))) cred))
+
 ;; hardcoded value for Cloudfront according to
 ;; http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-route53-aliastarget.html
 (def cloudfront-hosted-zone-id "Z2FDTNDATAQYW2")
@@ -106,22 +110,26 @@
                  :parameter-value v}))
       (reduce [] m)))
 
-(defn run-template [stack-name template params]
+(defn run-template [cred stack-name template params]
+  (validate-creds! cred)
   (let [tplate (json/write-str (transform-keys case/->PascalCaseString template))]
     (cformation/create-stack
+     cred
      :stack-name stack-name
      :template-body tplate
      :capabilities ["CAPABILITY_IAM"]
      :parameters (map->cf-params params))))
 
-(defn get-events [stack-id]
-  (:stack-events (cformation/describe-stack-events {:stack-name stack-id})))
+(defn get-events [cred stack-id]
+  (validate-creds! cred)
+  (:stack-events (cformation/describe-stack-events cred {:stack-name stack-id})))
 
-(defn get-outputs [stack-id]
+(defn get-outputs [cred stack-id]
+  (validate-creds! cred)
   (let [sanitize #(for [o %]
                    [(case/->kebab-case-keyword (:output-key o))
                     (dissoc o :output-key)])]
-    (->> (cformation/describe-stacks {:stack-name stack-id})
+    (->> (cformation/describe-stacks cred {:stack-name stack-id})
         :stacks first :outputs sanitize (into {}))))
 
 (defn succeeded? [events]
