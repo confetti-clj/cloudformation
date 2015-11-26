@@ -13,4 +13,6 @@
 (task-options!
  pom {:project     'confetti/cloudformation
       :version     +version+
-      :description "Generate CloudFormation templates suitable for static sites and run them."})
+      :description "Generate CloudFormation templates suitable for static sites and run them."
+      :url         "https://github.com/confetti/cloudformation"
+      :scm         {:url "https://github.com/confetti/cloudformation"}})
