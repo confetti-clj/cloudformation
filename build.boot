@@ -5,7 +5,7 @@
                  [camel-snake-kebab "0.3.2"]
                  [org.clojure/data.json "0.2.6"]])
 
-(require '[adzerk.bootlaces :refer [bootlaces! build-jar]])
+(require '[adzerk.bootlaces :refer [bootlaces! build-jar push-snapshot push-release]])
 
 (def +version+ "0.1.0-SNAPSHOT")
 (bootlaces! +version+)
