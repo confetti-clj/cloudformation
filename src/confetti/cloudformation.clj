@@ -81,7 +81,7 @@
                  :aliases [(ref domain-rid)]}}})
 
 (defn template [{:keys [dns?] :as opts}]
-  {:description "Confetti from Clojure"
+  {:description "Created by github.com/confetti-clj"
    :parameters {:user-domain {:type "String"}}
    :resources (cond-> {:site-bucket            (bucket)
                        :bucket-policy          (bucket-policy :site-bucket)
@@ -93,12 +93,14 @@
 
    :outputs (cond-> {:bucket-name {:value (ref :site-bucket)
                                    :description "Name of the S3 bucket"}
-                     :access-key-id {:value (ref :bucket-user-access-key)
-                                     :description "AccessKey that can only access bucket"}
-                     :site-cdn-url {:value (attr :site-cdn :domain-name)
-                                    :description "URL to access CloudFront distribution"}
-                     :secret-access-key {:value (attr :bucket-user-access-key :secret-access-key)
-                                         :description "Secret for AccessKey that can only access bucket"}}
+                     :cloudfront-id {:value (ref :site-cdn)
+                                     :description "ID of CloudFront distribution"}
+                     :cloudfront-url {:value (attr :site-cdn :domain-name)
+                                      :description "URL to access CloudFront distribution"}
+                     :access-key {:value (ref :bucket-user-access-key)
+                                  :description "AccessKey that can only access bucket"}
+                     :secret-key {:value (attr :bucket-user-access-key :secret-access-key)
+                                  :description "Secret for AccessKey that can only access bucket"}}
               dns? (assoc :website-url {:value (join "http://" (ref :zone-record-set))
                                         :description "URL of your site"})
               dns? (assoc :hosted-zone-id {:value (ref :hosted-zone)
