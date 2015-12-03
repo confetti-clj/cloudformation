@@ -73,7 +73,7 @@
                  :origins [{:domain-name        (attr bucket-rid :website-u-r-l)
                             :id                 (attr bucket-rid :website-u-r-l)
                             :CustomOriginConfig {:origin-protocol-policy "match-viewer"}}]
-                 :default-cache-behavior {:target-origin-id (attr bucket-rid :domain-name)
+                 :default-cache-behavior {:target-origin-id (attr bucket-rid :website-u-r-l)
                                           :forwarded-values {:query-string "false"}
                                           :viewer-protocol-policy "allow-all"}
                  :enabled "true"
