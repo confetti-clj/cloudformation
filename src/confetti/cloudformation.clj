@@ -71,14 +71,36 @@
    :properties {:status "Active"
                 :user-name (ref user-rid)}})
 
+(def mappings
+  ;; http://docs.aws.amazon.com/AmazonS3/latest/dev/WebsiteEndpoints.html
+  {:website-endpoints
+   {"us-east-1"      {:suffix ".s3-website-us-east-1.amazonaws.com"}
+    "us-west-1"      {:suffix ".s3-website-us-west-1.amazonaws.com"}
+    "us-west-2"      {:suffix ".s3-website-us-west-2.amazonaws.com"}
+    "eu-west-1"      {:suffix ".s3-website-eu-west-1.amazonaws.com"}
+    "eu-central-1"   {:suffix ".s3-website-eu-central-1.amazonaws.com"}
+    "ap-northeast-1" {:suffix ".s3-website-ap-northeast-1.amazonaws.com"}
+    "ap-southeast-1" {:suffix ".s3-website-ap-southeast-1.amazonaws.com"}
+    "ap-southeast-2" {:suffix ".s3-website-ap-southeast-2.amazonaws.com"}
+    "sa-east-1"      {:suffix ".s3-website-sa-east-1.amazonaws.com"}
+    "cn-north-1"     {:suffix ".s3-website.cn-north-1.amazonaws.com.cn"}}})
+
+(defn cf-get [map-name top-level second-level]
+  {"Fn::FindInMap" [(pascal-case-kw map-name)
+                    (pascal-case-kw top-level)
+                    (pascal-case-kw second-level)]})
+
+(defn website-endpoint [bucket-rid]
+  (join (ref bucket-rid) (cf-get :website-endpoints (ref "AWS::Region") :suffix)))
+
 (defn cloudfront-dist [domain-rid bucket-rid]
   {:type "AWS::CloudFront::Distribution"
    :properties {:distribution-config
                 {:comment "CDN for S3 backed website"
-                 :origins [{:domain-name        (attr bucket-rid :website-u-r-l)
-                            :id                 (attr bucket-rid :website-u-r-l)
-                            :CustomOriginConfig {:origin-protocol-policy "match-viewer"}}]
-                 :default-cache-behavior {:target-origin-id (attr bucket-rid :website-u-r-l)
+                 :origins [{:domain-name          (website-endpoint :site-bucket)
+                            :id                   (website-endpoint :site-bucket)
+                            :custom-origin-config {:origin-protocol-policy "match-viewer"}}]
+                 :default-cache-behavior {:target-origin-id (website-endpoint :site-bucket)
                                           :forwarded-values {:query-string "false"}
                                           :viewer-protocol-policy "allow-all"}
                  :enabled "true"
@@ -88,6 +110,7 @@
 (defn template [{:keys [dns?] :as opts}]
   {:description "Created by github.com/confetti-clj"
    :parameters {:user-domain {:type "String"}}
+   :mappings    mappings
    :resources (cond-> {:site-bucket            (bucket)
                        :bucket-policy          (bucket-policy :site-bucket)
                        :bucket-user            (user (user-policy :site-bucket))
