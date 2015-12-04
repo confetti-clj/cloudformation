@@ -15,12 +15,17 @@
 ;; http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-route53-aliastarget.html
 (def cloudfront-hosted-zone-id "Z2FDTNDATAQYW2")
 
+(defn pascal-case-kw [k]
+  (if (keyword? k)
+    (case/->PascalCaseString k)
+    k))
+
 (defn ref [resource]
-  {:ref (case/->PascalCaseString resource)})
+  {:ref (pascal-case-kw resource)})
 
 (defn attr [resource property]
-  { "Fn::GetAtt" [(case/->PascalCaseString resource)
-                  (case/->PascalCaseString property)]})
+  { "Fn::GetAtt" [(pascal-case-kw resource)
+                  (pascal-case-kw property)]})
 
 (defn join [& args]
   { "Fn::Join" [ "" args]})
@@ -108,13 +113,13 @@
 
 (defn map->cf-params [m]
   (-> (fn [p [k v]]
-        (conj p {:parameter-key (case/->PascalCaseString k)
+        (conj p {:parameter-key (pascal-case-kw k)
                  :parameter-value v}))
       (reduce [] m)))
 
 (defn run-template [cred stack-name template params]
   (validate-creds! cred)
-  (let [tplate (json/write-str (transform-keys case/->PascalCaseString template))]
+  (let [tplate (json/write-str (transform-keys pascal-case-kw template))]
     (cformation/create-stack
      cred
      :stack-name stack-name
