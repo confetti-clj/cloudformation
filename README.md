@@ -3,3 +3,9 @@
 # confetti/cloudformation
 
 Generate CloudFormations templates suitable for static site and single page app deployments and run them.
+
+[](dependency)
+```clojure
+[confetti/cloudformation "0.1.0"] ;; latest release
+```
+[](/dependency)
