@@ -55,11 +55,25 @@
                 :name (ref domain-rid)
                 :type "A"}})
 
+(defn bucket-record-set [bucket-rid hosted-zone-rid domain-rid]
+  {:type "AWS::Route53::RecordSet"
+   :properties {:alias-target {:d-n-s-name (website-endpoint bucket-rid)
+                               :hosted-zone-id (cf-get :hosted-zones (ref "AWS::Region") :zone)}
+                :hosted-zone-id (ref hosted-zone-rid)
+                :name nil
+                :type "A"}})
+
 (defn bucket []
   {:type "AWS::S3::Bucket"
    :properties {:access-control "PublicRead"
                 :website-configuration {:error-document "error.html"
                                         :index-document "index.html"}}})
+
+(defn forward-bucket [target-bucket]
+  {:type "AWS::S3::Bucket"
+   :properties {:access-control "PublicRead"
+                :website-configuration {:redirect-all-requests-to
+                                        {:host-name (website-endpoint target-bucket)}}}})
 
 (defn bucket-policy [bucket-rid]
   {:type "AWS::S3::BucketPolicy"
@@ -119,7 +133,8 @@
                  :default-root-object "index.html"
                  :aliases [(ref domain-rid)]}}})
 
-(defn template [{:keys [dns?] :as opts}]
+(defn template [{:keys [dns? forward-domain] :as opts}]
+  (assert (when forward-domain dns? true) "If you want to forward the root domain DNS via Route53 is required.")
   {:description "Created by github.com/confetti-clj"
    :parameters {:user-domain {:type "String"}}
    :mappings    mappings
@@ -128,6 +143,9 @@
                        :bucket-user            (user (user-policy :site-bucket))
                        :bucket-user-access-key (access-key :bucket-user)
                        :site-cdn               (cloudfront-dist :user-domain :site-bucket)}
+                forward-domain (assoc :forward-bucket  (forward-bucket :site-bucket))
+                forward-domain (assoc :root-record-set (-> (bucket-record-set :forward-bucket :hosted-zone nil)
+                                                           (assoc-in [:properties :name] forward-domain)))
                 dns?           (assoc :hosted-zone     (hosted-zone :user-domain))
                 dns?           (assoc :zone-record-set (cloudfront-record-set :site-cdn :hosted-zone :user-domain)))
 
