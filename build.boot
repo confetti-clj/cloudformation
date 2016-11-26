@@ -7,7 +7,7 @@
 
 (require '[adzerk.bootlaces :refer [bootlaces! build-jar push-snapshot push-release]])
 
-(def +version+ "0.1.3")
+(def +version+ "0.1.4")
 (bootlaces! +version+)
 
 (task-options!

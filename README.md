@@ -6,11 +6,15 @@ Generate CloudFormations templates suitable for static site and single page app 
 
 [](dependency)
 ```clojure
-[confetti/cloudformation "0.1.3"] ;; latest release
+[confetti/cloudformation "0.1.4"] ;; latest release
 ```
 [](/dependency)
 
 ## Changes
+
+#### 0.1.4
+
+- add a `:hosted-zone-id` option to `confetti.cloudformation/template` that can be used to specify an existing HostedZone to which the new RecordSet should be added
 
 #### 0.1.3
 
