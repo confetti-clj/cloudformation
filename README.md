@@ -6,11 +6,15 @@ Generate CloudFormations templates suitable for static site and single page app 
 
 [](dependency)
 ```clojure
-[confetti/cloudformation "0.1.2"] ;; latest release
+[confetti/cloudformation "0.1.3"] ;; latest release
 ```
 [](/dependency)
 
 ## Changes
+
+#### 0.1.3
+
+- register website-url stack output no matter if Route53 is used or not
 
 #### 0.1.2
 
