@@ -13,7 +13,7 @@
 
 ;; hardcoded value for Cloudfront according to
 ;; http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-route53-aliastarget.html
-(def cloudfront-hosted-zone-id "Z2FDTNDATAQYW2")
+(def CLOUDFRONT_HOSTED_ZONE "Z2FDTNDATAQYW2")
 
 (defn pascal-case-kw [k]
   (if (keyword? k)
@@ -30,6 +30,14 @@
 (defn join [& args]
   { "Fn::Join" [ "" args]})
 
+(defn cf-get [map-name top-level second-level]
+  { "Fn::FindInMap" [(pascal-case-kw map-name)
+                     (pascal-case-kw top-level)
+                     (pascal-case-kw second-level)]})
+
+(defn website-endpoint [bucket-rid]
+  (join (ref bucket-rid) (cf-get :website-endpoints (ref "AWS::Region") :suffix)))
+
 ;; rid = resource identifier
 ;; ie. the keys used in the resources map if the cloudfront template
 
@@ -39,10 +47,10 @@
                                     :value "site-xyz"}]
                 :name (ref domain-rid)}})
 
-(defn zone-record-set [cloudfront-dist-rid hosted-zone-rid domain-rid]
+(defn cloudfront-record-set [cloudfront-dist-rid hosted-zone-rid domain-rid]
   {:type "AWS::Route53::RecordSet"
    :properties {:alias-target {:d-n-s-name (attr cloudfront-dist-rid :domain-name)
-                               :hosted-zone-id cloudfront-hosted-zone-id}
+                               :hosted-zone-id CLOUDFRONT_HOSTED_ZONE}
                 :hosted-zone-id (ref hosted-zone-rid)
                 :name (ref domain-rid)
                 :type "A"}})
@@ -80,27 +88,31 @@
     "eu-west-1"      {:suffix ".s3-website-eu-west-1.amazonaws.com"}
     "eu-central-1"   {:suffix ".s3-website-eu-central-1.amazonaws.com"}
     "ap-northeast-1" {:suffix ".s3-website-ap-northeast-1.amazonaws.com"}
+    "ap-northeast-2" {:suffix ".s3.ap-northeast-2.amazonaws.com"}
     "ap-southeast-1" {:suffix ".s3-website-ap-southeast-1.amazonaws.com"}
     "ap-southeast-2" {:suffix ".s3-website-ap-southeast-2.amazonaws.com"}
     "sa-east-1"      {:suffix ".s3-website-sa-east-1.amazonaws.com"}
-    "cn-north-1"     {:suffix ".s3-website.cn-north-1.amazonaws.com.cn"}}})
-
-(defn cf-get [map-name top-level second-level]
-  {"Fn::FindInMap" [(pascal-case-kw map-name)
-                    (pascal-case-kw top-level)
-                    (pascal-case-kw second-level)]})
-
-(defn website-endpoint [bucket-rid]
-  (join (ref bucket-rid) (cf-get :website-endpoints (ref "AWS::Region") :suffix)))
+    "cn-north-1"     {:suffix ".s3-website.cn-north-1.amazonaws.com.cn"}}
+   :hosted-zones
+   {"us-east-1"      {:zone "Z3AQBSTGFYJSTF"}
+    "us-west-1"      {:zone "Z2F56UZL2M1ACD"}
+    "us-west-2"      {:zone "Z3BJ6K6RIION7M"}
+    "eu-west-1"      {:zone "Z1BKCTXD74EZPE"}
+    "eu-central-1"   {:zone "Z21DNDUVLTQW6Q"}
+    "ap-northeast-1" {:zone "Z2M4EHUR26P7ZW"}
+    "ap-northeast-2" {:zone "Z3W03O7B5YMIYP"}
+    "ap-southeast-1" {:zone "Z3O0J2DXBE1FTB"}
+    "ap-southeast-2" {:zone "Z1WCIGYICN2BYD"}
+    "sa-east-1"      {:zone "Z7KQH4QJS55SO"}}})
 
 (defn cloudfront-dist [domain-rid bucket-rid]
   {:type "AWS::CloudFront::Distribution"
    :properties {:distribution-config
                 {:comment "CDN for S3 backed website"
-                 :origins [{:domain-name          (website-endpoint :site-bucket)
-                            :id                   (website-endpoint :site-bucket)
+                 :origins [{:domain-name          (website-endpoint bucket-rid)
+                            :id                   (website-endpoint bucket-rid)
                             :custom-origin-config {:origin-protocol-policy "match-viewer"}}]
-                 :default-cache-behavior {:target-origin-id (website-endpoint :site-bucket)
+                 :default-cache-behavior {:target-origin-id (website-endpoint bucket-rid)
                                           :forwarded-values {:query-string "false"}
                                           :viewer-protocol-policy "allow-all"}
                  :enabled "true"
@@ -116,8 +128,8 @@
                        :bucket-user            (user (user-policy :site-bucket))
                        :bucket-user-access-key (access-key :bucket-user)
                        :site-cdn               (cloudfront-dist :user-domain :site-bucket)}
-                dns? (assoc :hosted-zone     (hosted-zone :user-domain))
-                dns? (assoc :zone-record-set (zone-record-set :site-cdn :hosted-zone :user-domain)))
+                dns?           (assoc :hosted-zone     (hosted-zone :user-domain))
+                dns?           (assoc :zone-record-set (cloudfront-record-set :site-cdn :hosted-zone :user-domain)))
 
    :outputs (cond-> {:bucket-name {:value (ref :site-bucket)
                                    :description "Name of the S3 bucket"}
