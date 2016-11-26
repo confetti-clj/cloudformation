@@ -6,6 +6,14 @@ Generate CloudFormations templates suitable for static site and single page app 
 
 [](dependency)
 ```clojure
-[confetti/cloudformation "0.1.0"] ;; latest release
+[confetti/cloudformation "0.1.2"] ;; latest release
 ```
 [](/dependency)
+
+## Changes
+
+#### 0.1.2
+
+- better error reporting when outputs are fetched for a deleted or otherwise unavailable stack
+
+
