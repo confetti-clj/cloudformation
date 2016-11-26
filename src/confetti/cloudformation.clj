@@ -140,9 +140,9 @@
                      :access-key {:value (ref :bucket-user-access-key)
                                   :description "AccessKey that can only access bucket"}
                      :secret-key {:value (attr :bucket-user-access-key :secret-access-key)
-                                  :description "Secret for AccessKey that can only access bucket"}}
-              dns? (assoc :website-url {:value (join "http://" (ref :zone-record-set))
-                                        :description "URL of your site"})
+                                  :description "Secret for AccessKey that can only access bucket"}
+                     :website-url {:value (join "http://" (if dns? (ref :zone-record-set) (ref :user-domain)))
+                                   :description "URL of your site"}}
               dns? (assoc :hosted-zone-id {:value (ref :hosted-zone)
                                            :description "ID of HostedZone"}))})
 
