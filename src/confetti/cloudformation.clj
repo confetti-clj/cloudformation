@@ -158,9 +158,11 @@
   (validate-creds! cred)
   (let [sanitize #(for [o %]
                    [(case/->kebab-case-keyword (:output-key o))
-                    (dissoc o :output-key)])]
-    (->> (cformation/describe-stacks cred {:stack-name stack-id})
-        :stacks first :outputs sanitize (into {}))))
+                    (dissoc o :output-key)])
+        [stack-info] (:stacks (cformation/describe-stacks cred {:stack-name stack-id}))]
+    (when-not (= "CREATE_COMPLETE" (:stack-status stack-info))
+      (throw (ex-info "Stack status is other than CREATE_COMPLETE" {:stack-info stack-info})))
+    (->> stack-info :outputs sanitize (into {}))))
 
 (defn succeeded? [events]
   (->> events
