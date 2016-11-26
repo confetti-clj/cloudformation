@@ -51,7 +51,8 @@
   {:type "AWS::Route53::RecordSet"
    :properties {:alias-target {:d-n-s-name (attr cloudfront-dist-rid :domain-name)
                                :hosted-zone-id CLOUDFRONT_HOSTED_ZONE}
-                :hosted-zone-id (ref hosted-zone-rid)
+                ;; This is a bit dirty probably should have different args for this case
+                :hosted-zone-id (if (string? hosted-zone-rid) hosted-zone-rid (ref hosted-zone-rid))
                 :name (ref domain-rid)
                 :type "A"}})
 
@@ -119,7 +120,17 @@
                  :default-root-object "index.html"
                  :aliases [(ref domain-rid)]}}})
 
-(defn template [{:keys [dns?] :as opts}]
+;; Probably all the cond-> trickery in the `template` function could be replaced
+;; by cleverly using Cloudformation conditions and whatnot but I'm just too lazy
+;; to really understand all of Cloudformation's features
+
+(defn template
+  "Generate a Cloudformation template for a static site using S3, Cloudfront and optionally Route53.
+
+   If the `dns?` option is specified a HostedZone and RecordSet will be created.
+   If the `dns?` option is specified and also a `hosted-zone-id` is provided the HostedZone
+   identified by this ID will be used and no new HostedZone will be created."
+  [{:keys [dns? hosted-zone-id] :as opts}]
   {:description "Created by github.com/confetti-clj"
    :parameters {:user-domain {:type "String"}}
    :mappings    mappings
@@ -128,8 +139,15 @@
                        :bucket-user            (user (user-policy :site-bucket))
                        :bucket-user-access-key (access-key :bucket-user)
                        :site-cdn               (cloudfront-dist :user-domain :site-bucket)}
-                dns?           (assoc :hosted-zone     (hosted-zone :user-domain))
-                dns?           (assoc :zone-record-set (cloudfront-record-set :site-cdn :hosted-zone :user-domain)))
+
+                (and dns? (not hosted-zone-id))
+                (assoc :hosted-zone     (hosted-zone :user-domain))
+
+                (and dns? (not hosted-zone-id))
+                (assoc :zone-record-set (cloudfront-record-set :site-cdn :hosted-zone :user-domain))
+
+                (and dns? hosted-zone-id)
+                (assoc :zone-record-set (cloudfront-record-set :site-cdn hosted-zone-id :user-domain)))
 
    :outputs (cond-> {:bucket-name {:value (ref :site-bucket)
                                    :description "Name of the S3 bucket"}
@@ -143,8 +161,13 @@
                                   :description "Secret for AccessKey that can only access bucket"}
                      :website-url {:value (join "http://" (if dns? (ref :zone-record-set) (ref :user-domain)))
                                    :description "URL of your site"}}
-              dns? (assoc :hosted-zone-id {:value (ref :hosted-zone)
-                                           :description "ID of HostedZone"}))})
+              (and dns? (not hosted-zone-id))
+              (assoc :hosted-zone-id {:value (ref :hosted-zone)
+                                      :description "ID of HostedZone"})
+
+              (and dns? hosted-zone-id)
+              (assoc :hosted-zone-id {:value hosted-zone-id
+                                      :description "ID of HostedZone"}))})
 
 (defn map->cf-params [m]
   (-> (fn [p [k v]]
