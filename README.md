@@ -6,11 +6,15 @@ Generate CloudFormations templates suitable for static site and single page app 
 
 [](dependency)
 ```clojure
-[confetti/cloudformation "0.1.5"] ;; latest release
+[confetti/cloudformation "0.1.6"] ;; latest release
 ```
 [](/dependency)
 
 ## Changes
+
+#### 0.1.6
+
+- Enable compression by default. Previously not possible via CloudFormation. [#5](https://github.com/confetti-clj/cloudformation/issues/5)
 
 #### 0.1.5
 

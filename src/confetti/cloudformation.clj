@@ -115,7 +115,8 @@
                             :custom-origin-config {:origin-protocol-policy "http-only"}}]
                  :default-cache-behavior {:target-origin-id (website-endpoint bucket-rid)
                                           :forwarded-values {:query-string "false"}
-                                          :viewer-protocol-policy "allow-all"}
+                                          :viewer-protocol-policy "allow-all"
+                                          :compress true}
                  :enabled "true"
                  :default-root-object "index.html"
                  :aliases [(ref domain-rid)]}}})
