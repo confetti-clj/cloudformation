@@ -10,7 +10,7 @@ Generate CloudFormations templates suitable for static site and single page app 
 ```
 [](/dependency)
 
-This project is part of [confetti-clj/confetti](https://githubcom/confetti-clj/confetti) 🎉, a tool to help creating and deploying static sites with AWS.
+This project is part of [confetti-clj/confetti](https://github.com/confetti-clj/confetti) 🎉, a tool to help creating and deploying static sites with AWS.
 
 ## Changes
 
