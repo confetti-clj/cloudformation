@@ -6,11 +6,15 @@ Generate CloudFormations templates suitable for static site and single page app 
 
 [](dependency)
 ```clojure
-[confetti/cloudformation "0.1.4"] ;; latest release
+[confetti/cloudformation "0.1.5"] ;; latest release
 ```
 [](/dependency)
 
 ## Changes
+
+#### 0.1.5
+
+- Address a misconfiguration of the S3 website endpoint origin where ViewerProtocolPolicy was set to Match-Viewer but should have been HTTP Only since S3 website endpoints generally don't support HTTPS (yet).
 
 #### 0.1.4
 
