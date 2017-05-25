@@ -110,9 +110,9 @@
   {:type "AWS::CloudFront::Distribution"
    :properties {:distribution-config
                 {:comment "CDN for S3 backed website"
-                 :origins [{:domain-name          (website-endpoint bucket-rid)
-                            :id                   (website-endpoint bucket-rid)
-                            :custom-origin-config {:origin-protocol-policy "match-viewer"}}]
+                 :origins [{:domain-name (website-endpoint bucket-rid)
+                            :id          (website-endpoint bucket-rid)
+                            :custom-origin-config {:origin-protocol-policy "http-only"}}]
                  :default-cache-behavior {:target-origin-id (website-endpoint bucket-rid)
                                           :forwarded-values {:query-string "false"}
                                           :viewer-protocol-policy "allow-all"}
