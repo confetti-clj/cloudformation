@@ -82,28 +82,41 @@
 
 (def mappings
   ;; http://docs.aws.amazon.com/AmazonS3/latest/dev/WebsiteEndpoints.html
+  ;; https://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region
   {:website-endpoints
-   {"us-east-1"      {:suffix ".s3-website-us-east-1.amazonaws.com"}
+   {"us-east-2"      {:suffix ".s3-website.us-east-2.amazonaws.com"}
+    "us-east-1"      {:suffix ".s3-website-us-east-1.amazonaws.com"}    
     "us-west-1"      {:suffix ".s3-website-us-west-1.amazonaws.com"}
     "us-west-2"      {:suffix ".s3-website-us-west-2.amazonaws.com"}
-    "eu-west-1"      {:suffix ".s3-website-eu-west-1.amazonaws.com"}
-    "eu-central-1"   {:suffix ".s3-website-eu-central-1.amazonaws.com"}
-    "ap-northeast-1" {:suffix ".s3-website-ap-northeast-1.amazonaws.com"}
-    "ap-northeast-2" {:suffix ".s3.ap-northeast-2.amazonaws.com"}
+    "ca-central-1"   {:suffix ".s3-website.ca-central-1.amazonaws.com"}
+    "ap-south-1"     {:suffix ".s3-website.ap-south-1.amazonaws.com"}
+    "ap-northeast-2" {:suffix ".s3-website.ap-northeast-2.amazonaws.com"}
+    "ap-northeast-3" {:suffix ".s3-website.ap-northeast-3.amazonaws.com"}
     "ap-southeast-1" {:suffix ".s3-website-ap-southeast-1.amazonaws.com"}
     "ap-southeast-2" {:suffix ".s3-website-ap-southeast-2.amazonaws.com"}
-    "sa-east-1"      {:suffix ".s3-website-sa-east-1.amazonaws.com"}
-    "cn-north-1"     {:suffix ".s3-website.cn-north-1.amazonaws.com.cn"}}
+    "ap-northeast-1" {:suffix ".s3-website-ap-northeast-1.amazonaws.com"}
+    "cn-northwest-1" {:suffix ".s3-website.cn-northwest-1.amazonaws.com.cn"}
+    "eu-central-1"   {:suffix ".s3-website.eu-central-1.amazonaws.com"}
+    "eu-west-1"      {:suffix ".s3-website-eu-west-1.amazonaws.com"}
+    "eu-west-2"      {:suffix ".s3-website.eu-west-2.amazonaws.com"}
+    "eu-west-3"      {:suffix ".s3-website.eu-west-1.amazonaws.com"}
+    "sa-east-1"      {:suffix ".s3-website-sa-east-1.amazonaws.com"}}
    :hosted-zones
-   {"us-east-1"      {:zone "Z3AQBSTGFYJSTF"}
+   {"us-east-2"      {:zone "Z2O1EMRO9K5GLX"}
+    "us-east-1"      {:zone "Z3AQBSTGFYJSTF"}
     "us-west-1"      {:zone "Z2F56UZL2M1ACD"}
     "us-west-2"      {:zone "Z3BJ6K6RIION7M"}
-    "eu-west-1"      {:zone "Z1BKCTXD74EZPE"}
-    "eu-central-1"   {:zone "Z21DNDUVLTQW6Q"}
-    "ap-northeast-1" {:zone "Z2M4EHUR26P7ZW"}
+    "ca-central-1"   {:zone "Z1QDHH18159H29"}
+    "ap-south-1"     {:zone "Z11RGJOFQNVJUP"}
     "ap-northeast-2" {:zone "Z3W03O7B5YMIYP"}
+    "ap-northeast-3" {:zone "Z2YQB5RD63NC85"}
     "ap-southeast-1" {:zone "Z3O0J2DXBE1FTB"}
     "ap-southeast-2" {:zone "Z1WCIGYICN2BYD"}
+    "ap-northeast-1" {:zone "Z2M4EHUR26P7ZW"}
+    "eu-west-1"      {:zone "Z1BKCTXD74EZPE"}
+    "eu-west-2"      {:zone "Z3GKZC51ZF0DB4"}
+    "eu-west-3"      {:zone "Z3R1K369G5AVDG"}
+    "eu-central-1"   {:zone "Z21DNDUVLTQW6Q"}
     "sa-east-1"      {:zone "Z7KQH4QJS55SO"}}})
 
 (defn cloudfront-dist [domain-rid bucket-rid]
